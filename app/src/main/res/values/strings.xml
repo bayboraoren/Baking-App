@@ -1,20 +1,22 @@
 <resources>
-    <string name="app_name">Baking Time</string>
-    <string name="empty_recipes_list">Empty recipes list</string>
-    <string name="empty_steps_list">Empty steps list</string>
+  <string name="app_name">Baking Time</string>
+  <string name="empty_list">Empty list</string>
 
-    <string name="number_of_servings">For %1$s People</string>
-    <string name="label_details_activity">Recipe Details</string>
-    <string name="ingredients">Ingredients</string>
-    <string name="steps">Steps</string>
-    <string name="no_ingredients_found">No ingredients found</string>
-    <string name="short_description_text">%1$d) %2$s</string>
-    <string name="currentStepText">%1$d/%2$d</string>
-    <string name="step_description">Step Description</string>
-    <string name="no_video_available">No video available</string>
-    <string name="next_step">Next step</string>
-    <string name="previous_step">Previous step</string>
-    <string name="add_widget">Add widget</string>
-    <string name="recipe_name">Recipe name</string>
+  <string name="number_of_servings">For %1$s People</string>
+  <string name="label_details_activity">Recipe Details</string>
+  <string name="ingredients">Ingredients</string>
+  <string name="steps">Steps</string>
+  <string name="no_ingredients_found">No ingredients found</string>
+  <string name="short_description_text">%1$d) %2$s</string>
+  <string name="currentStepText">%1$d/%2$d</string>
+  <string name="step_description">Step Description</string>
+  <string name="no_video_available">No video available</string>
+  <string name="next_step">Next step</string>
+  <string name="previous_step">Previous step</string>
+  <string name="add_widget">Add widget</string>
+  <string name="recipe_name">Recipe name</string>
+  <string name="loading_recipes">Loading recipes</string>
+  <string name="details_activity_error">Recipe ID can not be retrieved</string>
+  <string name="last_sync_time_key" translatable="false">last_sync_time</string>
 
 </resources>

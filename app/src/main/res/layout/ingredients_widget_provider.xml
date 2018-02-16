@@ -7,20 +7,20 @@
     android:orientation="vertical"
     android:padding="@dimen/margin_normal">
 
-    <TextView
-        android:id="@+id/recipeNameTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/recipe_name"
-        android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-        tools:text="Recipe name"/>
+  <TextView
+      android:id="@+id/recipeNameTextView"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:contentDescription="@string/recipe_name"
+      android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+      tools:text="Recipe name"/>
 
-    <TextView
-        android:id="@+id/ingredientsTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        tools:text="Recipe ingredients"/>
+  <TextView
+      android:id="@+id/ingredientsTextView"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="8dp"
+      android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+      tools:text="Recipe ingredients"/>
 
 </LinearLayout>

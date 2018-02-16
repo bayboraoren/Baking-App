@@ -1,7 +1,7 @@
 package com.iskae.bakingtime.data.model;
 
 import com.bumptech.glide.annotation.GlideModule;
-import com.bumptech.glide.module.*;
+import com.bumptech.glide.module.AppGlideModule;
 
 /**
  * Created by iskae on 09.02.18.

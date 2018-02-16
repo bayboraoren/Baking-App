@@ -1,118 +1,84 @@
 package com.iskae.bakingtime.data.model;
 
-import android.arch.persistence.room.*;
-import android.os.*;
+import com.google.gson.annotations.SerializedName;
 
-import com.google.gson.annotations.*;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.Index;
+import android.arch.persistence.room.PrimaryKey;
 
-import java.util.*;
+import java.util.List;
 
 /**
  * Created by iskae on 08.02.18.
  */
-@Entity
-public class Recipe implements Parcelable {
-    public static final Creator<Recipe> CREATOR = new Creator<Recipe>() {
-        @Override
-        public Recipe createFromParcel(Parcel in) {
-            return new Recipe(in);
-        }
+@Entity(indices = {@Index("id")})
+public class Recipe {
+  @PrimaryKey
+  @SerializedName("id")
+  private long id;
+  @SerializedName("name")
+  private String name;
+  @Ignore
+  @SerializedName("ingredients")
+  private List<Ingredient> ingredients;
+  @Ignore
+  @SerializedName("steps")
+  private List<Step> steps;
+  @SerializedName("servings")
+  private int servings;
+  @SerializedName("image")
+  private String imagePath;
 
-        @Override
-        public Recipe[] newArray(int size) {
-            return new Recipe[size];
-        }
-    };
-    @PrimaryKey
-    @SerializedName("id")
-    private long id;
-    @SerializedName("name")
-    private String name;
-    @Ignore
-    @SerializedName("ingredients")
-    private List<Ingredient> ingredients;
-    @Ignore
-    @SerializedName("steps")
-    private List<Step> steps;
-    @SerializedName("servings")
-    private int servings;
-    @SerializedName("image")
-    private String imagePath;
+  public Recipe() {
+  }
 
-    public Recipe() {
+  public long getId() {
+    return id;
+  }
 
-    }
+  public void setId(long id) {
+    this.id = id;
+  }
 
-    @Ignore
-    protected Recipe(Parcel in) {
-        id = in.readLong();
-        name = in.readString();
-        ingredients = in.createTypedArrayList(Ingredient.CREATOR);
-        steps = in.createTypedArrayList(Step.CREATOR);
-        servings = in.readInt();
-        imagePath = in.readString();
-    }
+  public String getName() {
+    return name;
+  }
 
-    public long getId() {
-        return id;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public void setId(long id) {
-        this.id = id;
-    }
+  public List<Ingredient> getIngredients() {
+    return ingredients;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public void setIngredients(List<Ingredient> ingredients) {
+    this.ingredients = ingredients;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public List<Step> getSteps() {
+    return steps;
+  }
 
-    public List<Ingredient> getIngredients() {
-        return ingredients;
-    }
+  public void setSteps(List<Step> steps) {
+    this.steps = steps;
+  }
 
-    public void setIngredients(List<Ingredient> ingredients) {
-        this.ingredients = ingredients;
-    }
+  public int getServings() {
+    return servings;
+  }
 
-    public List<Step> getSteps() {
-        return steps;
-    }
+  public void setServings(int servings) {
+    this.servings = servings;
+  }
 
-    public void setSteps(List<Step> steps) {
-        this.steps = steps;
-    }
+  public String getImagePath() {
+    return imagePath;
+  }
 
-    public int getServings() {
-        return servings;
-    }
+  public void setImagePath(String imagePath) {
+    this.imagePath = imagePath;
+  }
 
-    public void setServings(int servings) {
-        this.servings = servings;
-    }
-
-    public String getImagePath() {
-        return imagePath;
-    }
-
-    public void setImagePath(String imagePath) {
-        this.imagePath = imagePath;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(id);
-        dest.writeString(name);
-        dest.writeTypedList(ingredients);
-        dest.writeTypedList(steps);
-        dest.writeInt(servings);
-        dest.writeString(imagePath);
-    }
 }

@@ -1,109 +1,82 @@
 package com.iskae.bakingtime.data.model;
 
-import android.arch.persistence.room.*;
-import android.os.*;
+import com.google.gson.annotations.SerializedName;
 
-import com.google.gson.annotations.*;
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.ForeignKey;
+import android.arch.persistence.room.Index;
+import android.arch.persistence.room.PrimaryKey;
 
 /**
  * Created by iskae on 08.02.18.
  */
 @Entity(foreignKeys = {@ForeignKey(entity = Recipe.class,
-        parentColumns = "id",
-        childColumns = "recipe_id"),})
-public class Step implements Parcelable {
-    public static final Creator<Step> CREATOR = new Creator<Step>() {
-        @Override
-        public Step createFromParcel(Parcel in) {
-            return new Step(in);
-        }
+    parentColumns = "id",
+    childColumns = "recipe_id")}, indices = {@Index("recipe_id")})
+public class Step {
+  @ColumnInfo(name = "recipe_id")
+  private long recipeId;
+  @PrimaryKey
+  @SerializedName("id")
+  private long id;
+  @SerializedName("shortDescription")
+  private String shortDescription;
+  @SerializedName("description")
+  private String description;
+  @SerializedName("videoURL")
+  private String videoUrl;
+  @SerializedName("thumbnailURL")
+  private String thumbnailUrl;
 
-        @Override
-        public Step[] newArray(int size) {
-            return new Step[size];
-        }
-    };
-    @ColumnInfo(name = "recipe_id")
-    private long recipeId;
-    @PrimaryKey
-    @SerializedName("id")
-    private long id;
-    @SerializedName("shortDescription")
-    private String shortDescription;
-    @SerializedName("description")
-    private String description;
-    @SerializedName("videoURL")
-    private String videoUrl;
-    @SerializedName("thumbnailURL")
-    private String thumbnailUrl;
+  public Step() {
+  }
 
-    protected Step(Parcel in) {
-        id = in.readLong();
-        shortDescription = in.readString();
-        description = in.readString();
-        videoUrl = in.readString();
-        thumbnailUrl = in.readString();
-    }
+  public long getId() {
+    return id;
+  }
 
-    public long getId() {
-        return id;
-    }
+  public void setId(long id) {
+    this.id = id;
+  }
 
-    public String getShortDescription() {
-        return shortDescription;
-    }
+  public String getShortDescription() {
+    return shortDescription;
+  }
 
-    public String getDescription() {
-        return description;
-    }
+  public void setShortDescription(String shortDescription) {
+    this.shortDescription = shortDescription;
+  }
 
-    public String getVideoUrl() {
-        return videoUrl;
-    }
+  public String getDescription() {
+    return description;
+  }
 
-    public String getThumbnailUrl() {
-        return thumbnailUrl;
-    }
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
-    public long getRecipeId() {
-        return recipeId;
-    }
+  public String getVideoUrl() {
+    return videoUrl;
+  }
 
-    public void setRecipeId(long recipeId) {
-        this.recipeId = recipeId;
-    }
+  public void setVideoUrl(String videoUrl) {
+    this.videoUrl = videoUrl;
+  }
 
-    public void setId(long id) {
-        this.id = id;
-    }
+  public String getThumbnailUrl() {
+    return thumbnailUrl;
+  }
 
-    public void setShortDescription(String shortDescription) {
-        this.shortDescription = shortDescription;
-    }
+  public void setThumbnailUrl(String thumbnailUrl) {
+    this.thumbnailUrl = thumbnailUrl;
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public long getRecipeId() {
+    return recipeId;
+  }
 
-    public void setVideoUrl(String videoUrl) {
-        this.videoUrl = videoUrl;
-    }
-
-    public void setThumbnailUrl(String thumbnailUrl) {
-        this.thumbnailUrl = thumbnailUrl;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(id);
-        dest.writeString(shortDescription);
-        dest.writeString(description);
-        dest.writeString(videoUrl);
-        dest.writeString(thumbnailUrl);
-    }
+  public void setRecipeId(long recipeId) {
+    this.recipeId = recipeId;
+  }
 }

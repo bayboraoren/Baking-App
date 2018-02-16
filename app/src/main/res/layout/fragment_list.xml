@@ -1,0 +1,21 @@
+<android.support.v4.widget.SwipeRefreshLayout
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:id="@+id/swipeRefreshLayout"
+    android:layout_height="match_parent"
+    tools:context="com.iskae.bakingtime.list.RecipeListFragment">
+
+  <android.support.v7.widget.RecyclerView
+      android:id="@+id/recipesListView"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content" app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent"/>
+
+  <include layout="@layout/layout_loading_indicator"/>
+
+  <include layout="@layout/layout_empty_list"/>
+
+</android.support.v4.widget.SwipeRefreshLayout>
+
