@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.iskae.bakingtime.R;
 import com.iskae.bakingtime.data.model.GlideApp;
 import com.iskae.bakingtime.data.model.Step;
+import com.iskae.bakingtime.viewmodel.SharedRecipeViewModel;
 
 import java.util.List;
 
@@ -25,15 +26,18 @@ import butterknife.ButterKnife;
 
 public class RecipeStepsAdapter extends RecyclerView.Adapter<RecipeStepsAdapter.ViewHolder> {
 
+  private final SharedRecipeViewModel sharedRecipeViewModel;
+
   private Context context;
   private List<Step> steps;
 
-  public RecipeStepsAdapter(Context context, List<Step> steps) {
+  RecipeStepsAdapter(Context context, List<Step> steps, SharedRecipeViewModel sharedRecipeViewModel) {
     this.context = context;
     this.steps = steps;
+    this.sharedRecipeViewModel = sharedRecipeViewModel;
   }
 
-  public void setStepsList(List<Step> steps) {
+  void setStepsList(List<Step> steps) {
     this.steps = steps;
     notifyDataSetChanged();
   }
@@ -56,11 +60,7 @@ public class RecipeStepsAdapter extends RecyclerView.Adapter<RecipeStepsAdapter.
           .placeholder(playCircle)
           .into(holder.thumbnailImage);
       holder.stepShortDescriptionView.setText(context.getString(R.string.short_description_text, position + 1, step.getShortDescription()));
-      holder.itemView.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-        }
-      });
+      holder.itemView.setOnClickListener(v -> sharedRecipeViewModel.setCurrentStep(position));
     }
   }
 
@@ -70,14 +70,13 @@ public class RecipeStepsAdapter extends RecyclerView.Adapter<RecipeStepsAdapter.
     return steps.size();
   }
 
-
-  public class ViewHolder extends RecyclerView.ViewHolder {
+  class ViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.thumbnailImage)
     ImageView thumbnailImage;
     @BindView(R.id.stepShortDescriptionView)
     TextView stepShortDescriptionView;
 
-    public ViewHolder(View view) {
+    ViewHolder(View view) {
       super(view);
       ButterKnife.bind(this, view);
     }

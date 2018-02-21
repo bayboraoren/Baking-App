@@ -6,11 +6,9 @@ import android.arch.persistence.room.Room;
 import android.content.Context;
 
 import com.iskae.bakingtime.data.RecipesRepository;
-import com.iskae.bakingtime.data.source.local.IngredientDao;
 import com.iskae.bakingtime.data.source.local.LocalRecipesRepository;
 import com.iskae.bakingtime.data.source.local.RecipeDao;
 import com.iskae.bakingtime.data.source.local.RecipeDatabase;
-import com.iskae.bakingtime.data.source.local.StepDao;
 import com.iskae.bakingtime.data.source.remote.BakingTimeClient;
 import com.iskae.bakingtime.data.source.remote.BakingTimeService;
 import com.iskae.bakingtime.data.source.remote.RemoteRecipesRepository;
@@ -40,8 +38,8 @@ public class RepositoryModule {
 
   @Provides
   @Singleton
-  LocalRecipesRepository provideLocalRecipesRepository(RecipeDao recipeDao, IngredientDao ingredientDao, StepDao stepDao) {
-    return new LocalRecipesRepository(recipeDao, ingredientDao, stepDao);
+  LocalRecipesRepository provideLocalRecipesRepository(RecipeDao recipeDao) {
+    return new LocalRecipesRepository(recipeDao);
   }
 
   @Provides
@@ -67,18 +65,6 @@ public class RepositoryModule {
   @Singleton
   RecipeDao provideRecipeDao(RecipeDatabase database) {
     return database.recipeDao();
-  }
-
-  @Provides
-  @Singleton
-  IngredientDao provideIngredientDao(RecipeDatabase database) {
-    return database.ingredientDao();
-  }
-
-  @Provides
-  @Singleton
-  StepDao provideStepDao(RecipeDatabase database) {
-    return database.stepDao();
   }
 
   @Provides

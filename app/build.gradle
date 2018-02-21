@@ -65,6 +65,13 @@ dependencies {
   implementation "io.reactivex.rxjava2:rxjava:$rootProject.rxjavaVersion"
   implementation "io.reactivex.rxjava2:rxandroid:$rootProject.rxandroidVersion"
   implementation "com.jakewharton.timber:timber:$rootProject.timberVersion"
+
   implementation "com.google.dagger:dagger:$rootProject.daggerVersion"
+  implementation "com.google.dagger:dagger-android:$rootProject.daggerVersion"
+  implementation "com.google.dagger:dagger-android-support:$rootProject.daggerVersion"
   annotationProcessor "com.google.dagger:dagger-compiler:$rootProject.daggerVersion"
+  annotationProcessor "com.google.dagger:dagger-android-processor:$rootProject.daggerVersion"
+
+  implementation "com.google.guava:guava:$rootProject.guavaVersion"
+  implementation "com.google.code.findbugs:jsr305:$rootProject.findBugs"
 }

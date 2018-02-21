@@ -2,21 +2,14 @@ package com.iskae.bakingtime.data.model;
 
 import com.google.gson.annotations.SerializedName;
 
-import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.ForeignKey;
-import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 
 /**
  * Created by iskae on 08.02.18.
  */
-@Entity(foreignKeys = {@ForeignKey(entity = Recipe.class,
-    parentColumns = "id",
-    childColumns = "recipe_id")}, indices = {@Index("recipe_id")})
+@Entity
 public class Step {
-  @ColumnInfo(name = "recipe_id")
-  private long recipeId;
   @PrimaryKey
   @SerializedName("id")
   private long id;
@@ -72,11 +65,4 @@ public class Step {
     this.thumbnailUrl = thumbnailUrl;
   }
 
-  public long getRecipeId() {
-    return recipeId;
-  }
-
-  public void setRecipeId(long recipeId) {
-    this.recipeId = recipeId;
-  }
 }

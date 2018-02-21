@@ -1,15 +1,17 @@
 package com.iskae.bakingtime.step;
 
+import static com.google.android.exoplayer2.mediacodec.MediaCodecInfo.TAG;
+
 import com.google.android.exoplayer2.DefaultLoadControl;
+import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
-import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -20,6 +22,9 @@ import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
@@ -37,23 +42,22 @@ import android.widget.TextView;
 
 import com.iskae.bakingtime.R;
 import com.iskae.bakingtime.data.model.Step;
+import com.iskae.bakingtime.util.Constants;
+import com.iskae.bakingtime.viewmodel.SharedRecipeViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import dagger.android.support.AndroidSupportInjection;
 
 /**
  * Created by iskae on 08.02.18.
  */
 
 public class StepFragment extends Fragment implements Player.EventListener {
-  private static final String TAG = StepFragment.class.getSimpleName();
-
-  private static final String PLAYER_CURRENT_POSITION = "PLAYER_CURRENT_POSITION";
-  private static final String STEPS = "STEPS";
-  private static final String CURRENT_STEP = "CURRENT_STEP";
   @BindView(R.id.playerView)
   SimpleExoPlayerView playerView;
   @BindView(R.id.descriptionTextView)
@@ -70,33 +74,91 @@ public class StepFragment extends Fragment implements Player.EventListener {
   TextView emptyVideoTextView;
   @BindView(R.id.bottomNavigationView)
   RelativeLayout bottomNavigationView;
+
+  @Inject
+  ViewModelProvider.Factory viewModelFactory;
+
+  SharedRecipeViewModel sharedRecipeViewModel;
+
   private SimpleExoPlayer player;
   private MediaSessionCompat mediaSession;
   private PlaybackStateCompat.Builder stateBuilder;
-  private ArrayList<Step> steps;
+  private List<Step> steps;
+
+  private long recipeId;
   private int currentStepIndex;
   private long playbackPosition;
 
   public StepFragment() {
   }
 
+  public static StepFragment newInstance(long recipeId, int stepIndex) {
+    StepFragment fragment = new StepFragment();
+    Bundle args = new Bundle();
+    args.putLong(Constants.EXTRA_RECIPE_ID, recipeId);
+    args.putInt(Constants.EXTRA_STEP_INDEX, stepIndex);
+    fragment.setArguments(args);
+    return fragment;
+  }
 
-  @Nullable
   @Override
-  public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-    View rootView = inflater.inflate(R.layout.fragment_recipe_step, container, false);
-    ButterKnife.bind(this, rootView);
+  public void onAttach(Context context) {
+    AndroidSupportInjection.inject(this);
+    super.onAttach(context);
+  }
+
+  @Override
+  public void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    Bundle args = getArguments();
+    recipeId = args.getLong(Constants.EXTRA_RECIPE_ID);
+  }
+
+  @Override
+  public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+    super.onActivityCreated(savedInstanceState);
+    sharedRecipeViewModel = ViewModelProviders.of(getActivity(), viewModelFactory)
+        .get(SharedRecipeViewModel.class);
+    sharedRecipeViewModel.loadRecipeById(recipeId);
+    observeRecipeResponse();
+    observeCurrentStepIndex();
+    observeError();
+  }
+
+  private void observeCurrentStepIndex() {
+    sharedRecipeViewModel.getCurrentStep().observe(this, stepIndex -> {
+      currentStepIndex = stepIndex;
+      releasePlayer();
+      processStepsList();
+    });
+  }
+
+  private void observeError() {
+  }
+
+  private void observeRecipeResponse() {
+    sharedRecipeViewModel.getRecipe().observe(this, recipe -> {
+      if (recipe != null) {
+        steps = recipe.getSteps();
+        releasePlayer();
+        processStepsList();
+      }
+    });
+  }
+
+  private void processStepsList() {
     if (steps != null) {
       boolean twoPane = getResources().getBoolean(R.bool.twoPane);
       boolean landscapeMode = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
       Step step = steps.get(currentStepIndex);
       if (step != null) {
-        initializeBottomNavigation();
+        initializeBottomNavigation(steps);
         if (step.getDescription() != null)
           descriptionTextView.setText(step.getDescription());
         if (step.getVideoUrl() != null && step.getVideoUrl().length() > 0) {
           initializeMediaSession();
           initializePlayer(Uri.parse(step.getVideoUrl()));
+          playerView.setVisibility(View.VISIBLE);
           if (landscapeMode && !twoPane) {
             playerView.setLayoutParams(new
                 ConstraintLayout.LayoutParams(
@@ -109,6 +171,13 @@ public class StepFragment extends Fragment implements Player.EventListener {
         }
       }
     }
+  }
+
+  @Nullable
+  @Override
+  public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    View rootView = inflater.inflate(R.layout.fragment_recipe_step, container, false);
+    ButterKnife.bind(this, rootView);
     return rootView;
   }
 
@@ -118,49 +187,40 @@ public class StepFragment extends Fragment implements Player.EventListener {
     descriptionTextView.setVisibility(View.GONE);
   }
 
-  private void initializeBottomNavigation() {
+  private void initializeBottomNavigation(List<Step> steps) {
     currentStepTextView.setText(getContext().getString(R.string.currentStepText, currentStepIndex + 1, steps.size()));
     if (currentStepIndex == 0) {
       previousStepImageView.setVisibility(View.INVISIBLE);
     } else {
-      previousStepImageView.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-        }
+      previousStepImageView.setVisibility(View.VISIBLE);
+      previousStepImageView.setOnClickListener(v -> {
+        sharedRecipeViewModel.setCurrentStep(--currentStepIndex);
       });
     }
     if (currentStepIndex == steps.size() - 1) {
       nextStepImageView.setVisibility(View.INVISIBLE);
     } else {
-      nextStepImageView.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-        }
+      nextStepImageView.setVisibility(View.VISIBLE);
+      nextStepImageView.setOnClickListener(v -> {
+        sharedRecipeViewModel.setCurrentStep(++currentStepIndex);
       });
     }
-  }
-
-  public void setRecipeSteps(List<Step> steps) {
-    this.steps = new ArrayList<>(steps);
-  }
-
-  public void setCurrentStepIndex(int index) {
-    this.currentStepIndex = index;
   }
 
   private void initializePlayer(Uri mediaUri) {
     if (player == null) {
       TrackSelector trackSelector = new DefaultTrackSelector();
       LoadControl loadControl = new DefaultLoadControl();
-      player = ExoPlayerFactory.newSimpleInstance(getContext(), trackSelector, loadControl);
+      RenderersFactory renderersFactory = new DefaultRenderersFactory(getContext());
+      player = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector, loadControl);
       playerView.setPlayer(player);
       player.addListener(this);
       player.setPlayWhenReady(true);
       player.seekTo(playbackPosition);
     }
     String userAgent = Util.getUserAgent(getContext(), getContext().getString(R.string.app_name));
-    MediaSource mediaSource = new ExtractorMediaSource(mediaUri, new DefaultDataSourceFactory(getContext(), userAgent),
-        new DefaultExtractorsFactory(), null, null);
+    ExtractorMediaSource.Factory factory = new ExtractorMediaSource.Factory(new DefaultDataSourceFactory(getContext(), userAgent));
+    MediaSource mediaSource = factory.createMediaSource(mediaUri);
     player.prepare(mediaSource, true, false);
   }
 
@@ -202,6 +262,10 @@ public class StepFragment extends Fragment implements Player.EventListener {
     }
   }
 
+  public void setCurrentStepIndex(int stepIndex) {
+    this.currentStepIndex = stepIndex;
+  }
+
   @Override
   public void onTimelineChanged(Timeline timeline, Object manifest) {
 
@@ -219,9 +283,9 @@ public class StepFragment extends Fragment implements Player.EventListener {
 
   @Override
   public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-    if ((playbackState == ExoPlayer.STATE_READY) && playWhenReady) {
+    if ((playbackState == Player.STATE_READY) && playWhenReady) {
       stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING, player.getCurrentPosition(), 1f);
-    } else if ((playbackState == ExoPlayer.STATE_READY)) {
+    } else if ((playbackState == Player.STATE_READY)) {
       stateBuilder.setState(PlaybackStateCompat.STATE_PAUSED, player.getCurrentPosition(), 1f);
     }
     mediaSession.setPlaybackState(stateBuilder.build());

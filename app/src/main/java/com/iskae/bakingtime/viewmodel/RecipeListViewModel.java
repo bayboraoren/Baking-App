@@ -1,4 +1,4 @@
-package com.iskae.bakingtime.list;
+package com.iskae.bakingtime.viewmodel;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
@@ -34,19 +34,19 @@ public class RecipeListViewModel extends ViewModel {
     disposables.clear();
   }
 
-  LiveData<Boolean> getLoadingStatus() {
+  public LiveData<Boolean> getLoadingStatus() {
     return isLoading;
   }
 
-  LiveData<List<Recipe>> getRecipesList() {
+  public LiveData<List<Recipe>> getRecipesList() {
     return recipesList;
   }
 
-  LiveData<Throwable> getError() {
+  public LiveData<Throwable> getError() {
     return error;
   }
 
-  void loadRecipesList() {
+  public void loadRecipesList() {
     disposables.add(recipesRepository.getAllRecipes()
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
@@ -59,7 +59,7 @@ public class RecipeListViewModel extends ViewModel {
     );
   }
 
-  void refreshRecipes() {
+  public void refreshRecipes() {
     recipesRepository.refreshRepository();
     loadRecipesList();
   }

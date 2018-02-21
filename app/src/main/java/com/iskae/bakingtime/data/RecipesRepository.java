@@ -1,8 +1,6 @@
 package com.iskae.bakingtime.data;
 
-import com.iskae.bakingtime.data.model.Ingredient;
 import com.iskae.bakingtime.data.model.Recipe;
-import com.iskae.bakingtime.data.model.Step;
 import com.iskae.bakingtime.data.source.local.LocalRecipesRepository;
 import com.iskae.bakingtime.data.source.remote.RemoteRecipesRepository;
 import com.iskae.bakingtime.util.PreferenceUtils;
@@ -52,14 +50,6 @@ public class RecipesRepository {
     return remoteRecipesRepository.getAllRecipes().flatMap(recipes ->
         Flowable.fromIterable(recipes).doOnNext(recipe -> {
           localRecipesRepository.insertRecipe(recipe);
-          for (Ingredient ingredient : recipe.getIngredients()) {
-            ingredient.setRecipeId(recipe.getId());
-            localRecipesRepository.insertIngredient(ingredient);
-          }
-          for (Step step : recipe.getSteps()) {
-            step.setRecipeId(recipe.getId());
-            localRecipesRepository.insertStep(step);
-          }
           cachedRecipes.put(recipe.getId(), recipe);
         }).toList().toFlowable()).doOnComplete(() -> cacheIsDirty = false);
   }
@@ -76,11 +66,7 @@ public class RecipesRepository {
     return getAndSaveRemoteRecipes();
   }
 
-  public Flowable<List<Ingredient>> getIngredientsList(long recipeId) {
-    return localRecipesRepository.getIngredientsByRecipeId(recipeId);
-  }
-
-  public Flowable<List<Step>> getStepsList(long recipeId) {
-    return localRecipesRepository.getStepsByRecipeId(recipeId);
+  public Flowable<Recipe> getRecipeById(long recipeId) {
+    return localRecipesRepository.getRecipeById(recipeId);
   }
 }

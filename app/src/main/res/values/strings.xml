@@ -18,5 +18,8 @@
   <string name="loading_recipes">Loading recipes</string>
   <string name="details_activity_error">Recipe ID can not be retrieved</string>
   <string name="last_sync_time_key" translatable="false">last_sync_time</string>
+  <string name="widget_pick_recipe_toast">Pick a recipe from the list to show ingredients as a
+    widget
+  </string>
 
 </resources>

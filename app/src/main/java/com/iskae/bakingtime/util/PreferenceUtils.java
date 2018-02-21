@@ -28,13 +28,22 @@ public class PreferenceUtils {
   public boolean shouldUpdateRepository() {
     long lastUpdateTime = sharedPreferences.getLong(context.getString(R.string.last_sync_time_key), 0);
     long difference = System.currentTimeMillis() - lastUpdateTime;
-    if (difference > SYNC_INTERVAL_MINUTES) {
-      return true;
-    }
-    return false;
+    return difference > SYNC_INTERVAL_MINUTES;
   }
 
   public void setLastSyncTime(long time) {
     sharedPreferences.edit().putLong(context.getString(R.string.last_sync_time_key), time).apply();
+  }
+
+  void setAppWidgetRecipeId(int appWidgetId, long recipeId) {
+    sharedPreferences.edit().putLong(String.valueOf(appWidgetId), recipeId).apply();
+  }
+
+  long getAppWidgetRecipeId(int appWidgetId) {
+    return sharedPreferences.getLong(String.valueOf(appWidgetId), -1);
+  }
+
+  void removeAppWidget(int appWidgetId) {
+    sharedPreferences.edit().remove(String.valueOf(appWidgetId)).apply();
   }
 }

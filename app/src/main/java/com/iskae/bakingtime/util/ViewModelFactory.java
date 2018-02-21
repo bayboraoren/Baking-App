@@ -4,9 +4,8 @@ import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 
 import com.iskae.bakingtime.data.RecipesRepository;
-import com.iskae.bakingtime.details.DetailsViewModel;
-import com.iskae.bakingtime.list.RecipeListViewModel;
-import com.iskae.bakingtime.step.StepViewModel;
+import com.iskae.bakingtime.viewmodel.RecipeListViewModel;
+import com.iskae.bakingtime.viewmodel.SharedRecipeViewModel;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -30,11 +29,8 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
     if (modelClass.isAssignableFrom(RecipeListViewModel.class))
       return (T) new RecipeListViewModel(recipesRepository);
 
-    else if (modelClass.isAssignableFrom(DetailsViewModel.class))
-      return (T) new DetailsViewModel(recipesRepository);
-
-    else if (modelClass.isAssignableFrom(StepViewModel.class))
-      return (T) new StepViewModel(recipesRepository);
+    else if (modelClass.isAssignableFrom(SharedRecipeViewModel.class))
+      return (T) new SharedRecipeViewModel(recipesRepository);
 
     else {
       throw new IllegalArgumentException("ViewModel Not Found");

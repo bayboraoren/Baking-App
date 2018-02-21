@@ -1,5 +1,6 @@
 package com.iskae.bakingtime.list;
 
+import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.v4.graphics.drawable.DrawableCompat;
@@ -14,6 +15,7 @@ import com.iskae.bakingtime.R;
 import com.iskae.bakingtime.data.model.GlideApp;
 import com.iskae.bakingtime.data.model.Recipe;
 import com.iskae.bakingtime.details.DetailsActivity;
+import com.iskae.bakingtime.widget.IngredientsWidgetProvider;
 
 import java.util.List;
 
@@ -28,10 +30,12 @@ public class RecipesListAdapter extends RecyclerView.Adapter<RecipesListAdapter.
 
   private Context context;
   private List<Recipe> recipesList;
+  private boolean isPickRecipe;
 
-  public RecipesListAdapter(Context context, List<Recipe> recipes) {
+  RecipesListAdapter(Context context, List<Recipe> recipes, boolean isPickRecipe) {
     this.context = context;
     this.recipesList = recipes;
+    this.isPickRecipe = isPickRecipe;
   }
 
   @Override
@@ -55,12 +59,17 @@ public class RecipesListAdapter extends RecyclerView.Adapter<RecipesListAdapter.
           String.valueOf(recipe.getServings())));
       holder.recipeNameView.setText(recipe.getName());
       holder.itemView.setOnClickListener(view -> {
-        DetailsActivity.showRecipeDetails(context, recipe.getId());
+        if (!isPickRecipe) {
+          DetailsActivity.showRecipeDetails(context, recipe.getId());
+        } else {
+          AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+          IngredientsWidgetProvider.updateAppWidget(context, appWidgetManager, AppWidgetManager.INVALID_APPWIDGET_ID, recipe);
+        }
       });
     }
   }
 
-  public void setRecipesList(List<Recipe> items) {
+  void setRecipesList(List<Recipe> items) {
     this.recipesList = items;
     notifyDataSetChanged();
   }
@@ -72,7 +81,7 @@ public class RecipesListAdapter extends RecyclerView.Adapter<RecipesListAdapter.
   }
 
 
-  public class ViewHolder extends RecyclerView.ViewHolder {
+  class ViewHolder extends RecyclerView.ViewHolder {
     @BindView(R.id.recipeImageView)
     ImageView recipeImageView;
     @BindView(R.id.recipeNameView)
@@ -80,7 +89,7 @@ public class RecipesListAdapter extends RecyclerView.Adapter<RecipesListAdapter.
     @BindView(R.id.servingsTextView)
     TextView recipeServingsView;
 
-    public ViewHolder(View view) {
+    ViewHolder(View view) {
       super(view);
       ButterKnife.bind(this, view);
     }

@@ -1,9 +1,9 @@
 package com.iskae.bakingtime.data.model;
 
+import com.google.common.base.Objects;
 import com.google.gson.annotations.SerializedName;
 
 import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 
@@ -19,10 +19,8 @@ public class Recipe {
   private long id;
   @SerializedName("name")
   private String name;
-  @Ignore
   @SerializedName("ingredients")
   private List<Ingredient> ingredients;
-  @Ignore
   @SerializedName("steps")
   private List<Step> steps;
   @SerializedName("servings")
@@ -79,6 +77,20 @@ public class Recipe {
 
   public void setImagePath(String imagePath) {
     this.imagePath = imagePath;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Recipe recipe = (Recipe) o;
+    return Objects.equal(id, recipe.id) &&
+        Objects.equal(name, recipe.name);
+  }
+
+  @Override
+  public int hashCode() {
+    return com.google.common.base.Objects.hashCode(id, name);
   }
 
 }
