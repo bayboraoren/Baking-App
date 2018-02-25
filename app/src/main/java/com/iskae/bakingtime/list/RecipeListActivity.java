@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import com.iskae.bakingtime.R;
 import com.iskae.bakingtime.util.BaseActivity;
+import com.iskae.bakingtime.util.Constants;
 
 import dagger.android.AndroidInjection;
 
@@ -18,7 +19,7 @@ public class RecipeListActivity extends BaseActivity {
   public static void startPicker(Activity parent) {
     Intent intent = new Intent(parent, RecipeListActivity.class);
     intent.setAction(Intent.ACTION_PICK);
-    parent.startActivity(intent);
+    parent.startActivityForResult(intent, Constants.REQUEST_CODE_PICKER);
   }
 
   @Override

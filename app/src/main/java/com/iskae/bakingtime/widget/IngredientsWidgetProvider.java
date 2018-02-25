@@ -31,6 +31,7 @@ public class IngredientsWidgetProvider extends AppWidgetProvider {
 
   @Override
   public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
+    super.onUpdate(context, appWidgetManager, appWidgetIds);
     for (int appWidgetId : appWidgetIds) {
       long recipeId = widgetUtils.getAppWidgetRecipeId(appWidgetId);
       widgetUtils.getRecipeById(recipeId)
@@ -51,12 +52,12 @@ public class IngredientsWidgetProvider extends AppWidgetProvider {
                                      int appWidgetId, Recipe recipe) {
     if (recipe != null) {
       RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_ingredients_list);
-      views.setTextViewText(R.id.recipeNameTextView, recipe.getName());
+      views.setTextViewText(R.id.widgetRecipeName, recipe.getName());
       String ingredientsText = IngredientUtils.getIngredientsAsText(recipe.getIngredients());
       if (ingredientsText != null) {
-        views.setTextViewText(R.id.ingredientsTextView, ingredientsText);
+        views.setTextViewText(R.id.widgetIngredientsText, ingredientsText);
       } else {
-        views.setTextViewText(R.id.ingredientsTextView, context.getString(R.string.no_ingredients_found));
+        views.setTextViewText(R.id.widgetIngredientsText, context.getString(R.string.no_ingredients_found));
       }
       appWidgetManager.updateAppWidget(appWidgetId, views);
     }

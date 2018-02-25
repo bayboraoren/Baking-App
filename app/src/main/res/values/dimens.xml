@@ -15,4 +15,6 @@
   <dimen name="bottom_navigation_height">56dp</dimen>
   <dimen name="player_view_height">240dp</dimen>
   <dimen name="progress_bar_dimen">80dp</dimen>
+  <dimen name="widget_width">240dp</dimen>
+  <dimen name="widget_height">200dp</dimen>
 </resources>

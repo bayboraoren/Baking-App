@@ -33,7 +33,7 @@ public class BakingTimeApplication extends Application implements HasActivityInj
     applicationComponent = DaggerApplicationComponent
         .builder()
         .applicationModule(new ApplicationModule(this))
-        .repositoryModule(new RepositoryModule(this))
+        .repositoryModule(new RepositoryModule())
         .build();
 
     applicationComponent.inject(this);

@@ -1,9 +1,11 @@
 package com.iskae.bakingtime.list;
 
 
+import android.app.Activity;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -17,7 +19,7 @@ import android.view.ViewGroup;
 
 import com.iskae.bakingtime.R;
 import com.iskae.bakingtime.data.model.Recipe;
-import com.iskae.bakingtime.di.BakingTimeApplication;
+import com.iskae.bakingtime.details.DetailsActivity;
 import com.iskae.bakingtime.util.Constants;
 import com.iskae.bakingtime.viewmodel.RecipeListViewModel;
 
@@ -32,7 +34,9 @@ import dagger.android.support.AndroidSupportInjection;
 
 public class RecipeListFragment extends Fragment {
 
-
+  public interface OnRecipeClickListener {
+    void onRecipeClick(long recipeId);
+  }
 
   @BindView(R.id.recipesListView)
   RecyclerView recipesListView;
@@ -49,6 +53,7 @@ public class RecipeListFragment extends Fragment {
   RecipeListViewModel listViewModel;
 
   private RecipesListAdapter adapter;
+  private boolean isPickRecipe;
 
   public RecipeListFragment() {
   }
@@ -71,12 +76,19 @@ public class RecipeListFragment extends Fragment {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     Bundle args = getArguments();
-    boolean isPickRecipe = false;
     if (args != null) {
       isPickRecipe = args.getBoolean(Constants.EXTRA_IS_PICK_RECIPE);
     }
-    adapter = new RecipesListAdapter(getContext(), new ArrayList<>(), isPickRecipe);
-
+    adapter = new RecipesListAdapter(getContext(), new ArrayList<>(), recipeId -> {
+      if (isPickRecipe) {
+        Intent intent = new Intent();
+        intent.putExtra(Constants.EXTRA_RECIPE_ID, recipeId);
+        getActivity().setResult(Activity.RESULT_OK, intent);
+        getActivity().finish();
+      } else {
+        DetailsActivity.showRecipeDetails(getContext(), recipeId);
+      }
+    });
   }
 
   @Override

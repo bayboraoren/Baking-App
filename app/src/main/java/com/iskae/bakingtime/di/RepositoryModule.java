@@ -19,6 +19,7 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import retrofit2.Retrofit;
 
 /**
  * Created by iskae on 14.02.18.
@@ -26,15 +27,6 @@ import dagger.Provides;
 
 @Module
 public class RepositoryModule {
-
-  private final RecipeDatabase recipeDatabase;
-  private final BakingTimeService service;
-
-  public RepositoryModule(Application application) {
-    this.recipeDatabase = Room.databaseBuilder(application,
-        RecipeDatabase.class, "recipe.db").build();
-    this.service = BakingTimeClient.getBakingTimeClient().create(BakingTimeService.class);
-  }
 
   @Provides
   @Singleton
@@ -44,7 +36,7 @@ public class RepositoryModule {
 
   @Provides
   @Singleton
-  RemoteRecipesRepository provideRemoteRecipesRepository() {
+  RemoteRecipesRepository provideRemoteRecipesRepository(BakingTimeService service) {
     return new RemoteRecipesRepository(service);
   }
 
@@ -69,8 +61,21 @@ public class RepositoryModule {
 
   @Provides
   @Singleton
-  RecipeDatabase provideRecipeDatabase() {
-    return recipeDatabase;
+  RecipeDatabase provideRecipeDatabase(Application application) {
+    return Room.databaseBuilder(application,
+        RecipeDatabase.class, "recipe.db").build();
+  }
+
+  @Provides
+  @Singleton
+  BakingTimeService provideBakingTimeService(Retrofit retrofit) {
+    return retrofit.create(BakingTimeService.class);
+  }
+
+  @Provides
+  @Singleton
+  Retrofit provideRetrofit() {
+    return BakingTimeClient.getBakingTimeClient();
   }
 
   @Provides

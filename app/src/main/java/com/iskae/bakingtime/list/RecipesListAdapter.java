@@ -1,6 +1,5 @@
 package com.iskae.bakingtime.list;
 
-import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.v4.graphics.drawable.DrawableCompat;
@@ -14,8 +13,6 @@ import android.widget.TextView;
 import com.iskae.bakingtime.R;
 import com.iskae.bakingtime.data.model.GlideApp;
 import com.iskae.bakingtime.data.model.Recipe;
-import com.iskae.bakingtime.details.DetailsActivity;
-import com.iskae.bakingtime.widget.IngredientsWidgetProvider;
 
 import java.util.List;
 
@@ -30,12 +27,12 @@ public class RecipesListAdapter extends RecyclerView.Adapter<RecipesListAdapter.
 
   private Context context;
   private List<Recipe> recipesList;
-  private boolean isPickRecipe;
+  private RecipeListFragment.OnRecipeClickListener listener;
 
-  RecipesListAdapter(Context context, List<Recipe> recipes, boolean isPickRecipe) {
+  RecipesListAdapter(Context context, List<Recipe> recipes, RecipeListFragment.OnRecipeClickListener listener) {
     this.context = context;
     this.recipesList = recipes;
-    this.isPickRecipe = isPickRecipe;
+    this.listener = listener;
   }
 
   @Override
@@ -59,12 +56,7 @@ public class RecipesListAdapter extends RecyclerView.Adapter<RecipesListAdapter.
           String.valueOf(recipe.getServings())));
       holder.recipeNameView.setText(recipe.getName());
       holder.itemView.setOnClickListener(view -> {
-        if (!isPickRecipe) {
-          DetailsActivity.showRecipeDetails(context, recipe.getId());
-        } else {
-          AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-          IngredientsWidgetProvider.updateAppWidget(context, appWidgetManager, AppWidgetManager.INVALID_APPWIDGET_ID, recipe);
-        }
+        listener.onRecipeClick(recipe.getId());
       });
     }
   }

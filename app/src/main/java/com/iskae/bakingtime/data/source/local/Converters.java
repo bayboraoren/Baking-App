@@ -20,7 +20,7 @@ public class Converters {
   private static Gson gson = new Gson();
 
   @TypeConverter
-  static List<Ingredient> stringToIngredientList(String data) {
+  public static List<Ingredient> stringToIngredientList(String data) {
     if (data == null) {
       return Collections.emptyList();
     }
@@ -31,12 +31,12 @@ public class Converters {
   }
 
   @TypeConverter
-  static String ingredientListToString(List<Ingredient> ingredients) {
+  public static String ingredientListToString(List<Ingredient> ingredients) {
     return gson.toJson(ingredients);
   }
 
   @TypeConverter
-  static List<Step> stringToStepList(String data) {
+  public static List<Step> stringToStepList(String data) {
     if (data == null) {
       return Collections.emptyList();
     }
@@ -47,7 +47,7 @@ public class Converters {
   }
 
   @TypeConverter
-  static String stepListToString(List<Step> steps) {
+  public static String stepListToString(List<Step> steps) {
     return gson.toJson(steps);
   }
 }
