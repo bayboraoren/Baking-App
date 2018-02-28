@@ -10,6 +10,7 @@ android {
     versionCode 1
     versionName "1.0"
     testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    multiDexEnabled true
   }
   buildTypes {
     release {
@@ -34,7 +35,12 @@ dependencies {
   implementation "com.android.support:support-fragment:$rootProject.supportLibraryVersion"
   implementation "com.android.support.constraint:constraint-layout:$rootProject.constraintLayoutVersion"
   implementation 'com.android.support:support-v4:27.0.2'
+
   testImplementation "junit:junit:$rootProject.junitVersion"
+  testImplementation "org.mockito:mockito-core:$rootProject.mockitoVersion"
+  implementation "com.android.support.test.espresso:espresso-idling-resource:$rootProject.espressoVersion"
+  implementation "com.android.support.test.espresso:espresso-contrib:$rootProject.espressoVersion"
+  implementation "com.android.support.test.espresso:espresso-intents:$rootProject.espressoVersion"
   androidTestImplementation "com.android.support.test:runner:$rootProject.runnerVersion"
   androidTestImplementation "com.android.support.test.espresso:espresso-core:$rootProject.espressoVersion"
 

@@ -87,7 +87,6 @@ public class StepFragment extends Fragment implements Player.EventListener {
 
   private long recipeId;
   private int currentStepIndex;
-  private long playbackPosition;
 
   public StepFragment() {
   }
@@ -216,12 +215,11 @@ public class StepFragment extends Fragment implements Player.EventListener {
       playerView.setPlayer(player);
       player.addListener(this);
       player.setPlayWhenReady(true);
-      player.seekTo(playbackPosition);
     }
     String userAgent = Util.getUserAgent(getContext(), getContext().getString(R.string.app_name));
     ExtractorMediaSource.Factory factory = new ExtractorMediaSource.Factory(new DefaultDataSourceFactory(getContext(), userAgent));
     MediaSource mediaSource = factory.createMediaSource(mediaUri);
-    player.prepare(mediaSource, true, false);
+    player.prepare(mediaSource);
   }
 
   private void initializeMediaSession() {
@@ -255,7 +253,6 @@ public class StepFragment extends Fragment implements Player.EventListener {
 
   private void releasePlayer() {
     if (player != null) {
-      playbackPosition = player.getCurrentPosition();
       player.stop();
       player.release();
       player = null;

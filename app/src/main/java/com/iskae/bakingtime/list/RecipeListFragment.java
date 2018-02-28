@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.iskae.bakingtime.R;
+import com.iskae.bakingtime.data.EspressoIdlingResource;
 import com.iskae.bakingtime.data.model.Recipe;
 import com.iskae.bakingtime.details.DetailsActivity;
 import com.iskae.bakingtime.util.Constants;
@@ -96,7 +97,7 @@ public class RecipeListFragment extends Fragment {
     super.onActivityCreated(savedInstanceState);
     listViewModel = ViewModelProviders.of(getActivity(), viewModelFactory)
         .get(RecipeListViewModel.class);
-    listViewModel.loadRecipesList();
+    listViewModel.loadRecipesList((EspressoIdlingResource) ((RecipeListActivity)getActivity()).getIdlingResource());
     observeLoadingStatus();
     observeResponse();
     observeError();

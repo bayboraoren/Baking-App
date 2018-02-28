@@ -5,10 +5,13 @@ import static com.iskae.bakingtime.util.Constants.LIST_FRAGMENT_TAG;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.VisibleForTesting;
+import android.support.test.espresso.IdlingResource;
 import android.support.v4.app.FragmentManager;
 import android.widget.Toast;
 
 import com.iskae.bakingtime.R;
+import com.iskae.bakingtime.data.EspressoIdlingResource;
 import com.iskae.bakingtime.util.BaseActivity;
 import com.iskae.bakingtime.util.Constants;
 
@@ -21,6 +24,8 @@ public class RecipeListActivity extends BaseActivity {
     intent.setAction(Intent.ACTION_PICK);
     parent.startActivityForResult(intent, Constants.REQUEST_CODE_PICKER);
   }
+
+  private EspressoIdlingResource idlingResource;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -37,5 +42,10 @@ public class RecipeListActivity extends BaseActivity {
       fragment = RecipeListFragment.newInstance(isPick);
     }
     addFragmentToActivity(manager, fragment, R.id.list_fragment_container, LIST_FRAGMENT_TAG);
+  }
+
+  public IdlingResource getIdlingResource() {
+    if (idlingResource == null) idlingResource = new EspressoIdlingResource();
+    return idlingResource;
   }
 }

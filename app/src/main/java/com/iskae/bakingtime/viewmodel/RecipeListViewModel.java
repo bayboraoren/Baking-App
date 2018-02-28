@@ -4,6 +4,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 
+import com.iskae.bakingtime.data.EspressoIdlingResource;
 import com.iskae.bakingtime.data.RecipesRepository;
 import com.iskae.bakingtime.data.model.Recipe;
 
@@ -46,12 +47,20 @@ public class RecipeListViewModel extends ViewModel {
     return error;
   }
 
-  public void loadRecipesList() {
+  public void loadRecipesList(EspressoIdlingResource idlingResource) {
     disposables.add(recipesRepository.getAllRecipes()
         .subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
-        .doOnSubscribe(s -> isLoading.setValue(true))
-        .doAfterTerminate(() -> isLoading.setValue(false))
+        .doOnSubscribe(s -> {
+          isLoading.setValue(true);
+          if (idlingResource != null)
+            idlingResource.setIdleState(false);
+        })
+        .doAfterTerminate(() -> {
+          isLoading.setValue(false);
+          if (idlingResource != null)
+            idlingResource.setIdleState(true);
+        })
         .subscribe(
             recipesList::setValue,
             error::setValue
@@ -61,6 +70,5 @@ public class RecipeListViewModel extends ViewModel {
 
   public void refreshRecipes() {
     recipesRepository.refreshRepository();
-    loadRecipesList();
   }
 }

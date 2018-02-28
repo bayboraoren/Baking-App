@@ -52,4 +52,5 @@ ext {
   daggerVersion = "2.13"
   guavaVersion = '22.0-android'
   findBugs = '3.0.2'
+  mockitoVersion = "2.8.47"
 }
