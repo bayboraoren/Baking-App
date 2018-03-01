@@ -46,6 +46,7 @@ public class ConfigureIngredientsWidgetActivity extends AppCompatActivity {
         widgetUtils.getRecipeById(recipeId)
             .take(1)
             .subscribe(recipe -> {
+              widgetUtils.setAppWidgetRecipeId(appWidgetId, recipeId);
               AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(this);
               IngredientsWidgetProvider.updateAppWidget(this, appWidgetManager, appWidgetId, recipe);
               Intent resultValue = new Intent();

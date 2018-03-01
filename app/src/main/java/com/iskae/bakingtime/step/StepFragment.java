@@ -28,6 +28,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
@@ -84,9 +85,12 @@ public class StepFragment extends Fragment implements Player.EventListener {
   private MediaSessionCompat mediaSession;
   private PlaybackStateCompat.Builder stateBuilder;
   private List<Step> steps;
+  private String videoUrl;
 
   private long recipeId;
   private int currentStepIndex;
+  private long lastPosition;
+  private boolean playWhenReady = true;
 
   public StepFragment() {
   }
@@ -111,6 +115,11 @@ public class StepFragment extends Fragment implements Player.EventListener {
     super.onCreate(savedInstanceState);
     Bundle args = getArguments();
     recipeId = args.getLong(Constants.EXTRA_RECIPE_ID);
+    currentStepIndex = args.getInt(Constants.EXTRA_STEP_INDEX);
+    if (savedInstanceState != null) {
+      playWhenReady = savedInstanceState.getBoolean(Constants.EXTRA_PLAY_WHEN_READY);
+      lastPosition = savedInstanceState.getLong(Constants.EXTRA_LAST_POSITION);
+    }
   }
 
   @Override
@@ -126,9 +135,13 @@ public class StepFragment extends Fragment implements Player.EventListener {
 
   private void observeCurrentStepIndex() {
     sharedRecipeViewModel.getCurrentStep().observe(this, stepIndex -> {
-      currentStepIndex = stepIndex;
-      releasePlayer();
-      processStepsList();
+      if (currentStepIndex != stepIndex) {
+        StepFragment stepFragment = newInstance(recipeId, stepIndex);
+        getActivity().getSupportFragmentManager()
+            .beginTransaction()
+            .replace(R.id.stepFragmentContainer, stepFragment)
+            .commit();
+      }
     });
   }
 
@@ -139,7 +152,6 @@ public class StepFragment extends Fragment implements Player.EventListener {
     sharedRecipeViewModel.getRecipe().observe(this, recipe -> {
       if (recipe != null) {
         steps = recipe.getSteps();
-        releasePlayer();
         processStepsList();
       }
     });
@@ -155,8 +167,9 @@ public class StepFragment extends Fragment implements Player.EventListener {
         if (step.getDescription() != null)
           descriptionTextView.setText(step.getDescription());
         if (step.getVideoUrl() != null && step.getVideoUrl().length() > 0) {
+          videoUrl = step.getVideoUrl();
           initializeMediaSession();
-          initializePlayer(Uri.parse(step.getVideoUrl()));
+          initializePlayer();
           playerView.setVisibility(View.VISIBLE);
           if (landscapeMode && !twoPane) {
             playerView.setLayoutParams(new
@@ -193,7 +206,7 @@ public class StepFragment extends Fragment implements Player.EventListener {
     } else {
       previousStepImageView.setVisibility(View.VISIBLE);
       previousStepImageView.setOnClickListener(v -> {
-        sharedRecipeViewModel.setCurrentStep(--currentStepIndex);
+        sharedRecipeViewModel.setCurrentStep(currentStepIndex - 1);
       });
     }
     if (currentStepIndex == steps.size() - 1) {
@@ -201,12 +214,12 @@ public class StepFragment extends Fragment implements Player.EventListener {
     } else {
       nextStepImageView.setVisibility(View.VISIBLE);
       nextStepImageView.setOnClickListener(v -> {
-        sharedRecipeViewModel.setCurrentStep(++currentStepIndex);
+        sharedRecipeViewModel.setCurrentStep(currentStepIndex + 1);
       });
     }
   }
 
-  private void initializePlayer(Uri mediaUri) {
+  private void initializePlayer() {
     if (player == null) {
       TrackSelector trackSelector = new DefaultTrackSelector();
       LoadControl loadControl = new DefaultLoadControl();
@@ -214,27 +227,30 @@ public class StepFragment extends Fragment implements Player.EventListener {
       player = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector, loadControl);
       playerView.setPlayer(player);
       player.addListener(this);
-      player.setPlayWhenReady(true);
+      player.seekTo(lastPosition);
+      player.setPlayWhenReady(playWhenReady);
+      String userAgent = Util.getUserAgent(getContext(), getContext().getString(R.string.app_name));
+      ExtractorMediaSource.Factory factory = new ExtractorMediaSource.Factory(new DefaultDataSourceFactory(getContext(), userAgent));
+      MediaSource mediaSource = factory.createMediaSource(Uri.parse(videoUrl));
+      player.prepare(mediaSource, true, false);
     }
-    String userAgent = Util.getUserAgent(getContext(), getContext().getString(R.string.app_name));
-    ExtractorMediaSource.Factory factory = new ExtractorMediaSource.Factory(new DefaultDataSourceFactory(getContext(), userAgent));
-    MediaSource mediaSource = factory.createMediaSource(mediaUri);
-    player.prepare(mediaSource);
   }
 
   private void initializeMediaSession() {
-    mediaSession = new MediaSessionCompat(getContext(), TAG);
-    mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
-        MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
-    mediaSession.setMediaButtonReceiver(null);
-    stateBuilder = new PlaybackStateCompat.Builder()
-        .setActions(PlaybackStateCompat.ACTION_PLAY |
-            PlaybackStateCompat.ACTION_PAUSE |
-            PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
-            PlaybackStateCompat.ACTION_PLAY_PAUSE);
-    mediaSession.setPlaybackState(stateBuilder.build());
-    mediaSession.setCallback(new RecipeStepSessionCallback());
-    mediaSession.setActive(true);
+    if (mediaSession == null) {
+      mediaSession = new MediaSessionCompat(getContext(), TAG);
+      mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
+          MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+      mediaSession.setMediaButtonReceiver(null);
+      stateBuilder = new PlaybackStateCompat.Builder()
+          .setActions(PlaybackStateCompat.ACTION_PLAY |
+              PlaybackStateCompat.ACTION_PAUSE |
+              PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS |
+              PlaybackStateCompat.ACTION_PLAY_PAUSE);
+      mediaSession.setPlaybackState(stateBuilder.build());
+      mediaSession.setCallback(new RecipeStepSessionCallback());
+      mediaSession.setActive(true);
+    }
   }
 
   @Override
@@ -251,12 +267,27 @@ public class StepFragment extends Fragment implements Player.EventListener {
       mediaSession.setActive(false);
   }
 
+  @Override
+  public void onStop() {
+    super.onStop();
+    releasePlayer();
+  }
+
   private void releasePlayer() {
     if (player != null) {
+      lastPosition = player.getCurrentPosition();
+      playWhenReady = player.getPlayWhenReady();
       player.stop();
       player.release();
       player = null;
     }
+  }
+
+  @Override
+  public void onSaveInstanceState(@NonNull Bundle outState) {
+    outState.putLong(Constants.EXTRA_LAST_POSITION, lastPosition);
+    outState.putBoolean(Constants.EXTRA_PLAY_WHEN_READY, playWhenReady);
+    super.onSaveInstanceState(outState);
   }
 
   public void setCurrentStepIndex(int stepIndex) {

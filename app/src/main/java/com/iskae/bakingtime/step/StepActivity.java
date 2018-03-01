@@ -46,7 +46,7 @@ public class StepActivity extends BaseActivity {
     Intent intent = getIntent();
     long recipeId = intent.getLongExtra(EXTRA_RECIPE_ID, -1);
     int currentStepIndex = intent.getIntExtra(EXTRA_CURRENT_STEP_INDEX, 0);
-    if (recipeId != -1) {
+    if (savedInstanceState == null && recipeId != -1) {
       FragmentManager manager = getSupportFragmentManager();
       StepFragment stepFragment = (StepFragment) manager.findFragmentByTag(STEP_FRAGMENT_TAG);
       if (stepFragment == null) {
